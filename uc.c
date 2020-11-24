@@ -365,7 +365,7 @@ uc_err uc_close(uc_engine *uc)
     // finally, free uc itself.
     memset(uc, 0, sizeof(*uc));
     free(uc);
-    
+
     return UC_ERR_OK;
 }
 
@@ -547,7 +547,7 @@ static void clear_deleted_hooks(uc_engine *uc)
     struct list_item * cur;
     struct hook * hook;
     int i;
-    
+
     for (cur = uc->hooks_to_del.head; cur != NULL && (hook = (struct hook *)cur->data); cur = cur->next) {
         assert(hook->to_delete);
         for (i = 0; i < UC_HOOK_MAX; i++) {
@@ -1401,4 +1401,13 @@ uc_err uc_context_free(uc_context *context)
         list_remove(&uc->saved_contexts, context);
     }
     return uc_free(context);
+}
+
+UNICORN_EXPORT
+int uc_get_invalid_addr_error(struct uc_struct *uc, uint64_t* invalid_addr)
+{
+    if (uc->invalid_error != 0 && invalid_addr != NULL) {
+        *invalid_addr = uc->invalid_addr;
+    }
+    return uc->invalid_error;
 }
