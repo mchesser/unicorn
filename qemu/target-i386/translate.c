@@ -5003,6 +5003,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
     TCGv cpu_tmp4 = *(TCGv *)tcg_ctx->cpu_tmp4;
     TCGv **cpu_T = (TCGv **)tcg_ctx->cpu_T;
     TCGv **cpu_regs = (TCGv **)tcg_ctx->cpu_regs;
+    uint16_t *save_gen_opc_ptr = tcg_ctx->gen_opc_ptr;
     TCGArg *save_opparam_ptr = tcg_ctx->gen_opparam_ptr;
     bool cc_op_dirty = s->cc_op_dirty;
     bool changed_cc_op = false;
@@ -8515,9 +8516,14 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
 
     return s->pc;
  illegal_op:
-    if (s->prefix & PREFIX_LOCK)
-        gen_helper_unlock(tcg_ctx, cpu_env);
-    /* XXX: ensure that no lock was generated */
+    // Reset TCG state to before code for this instruction was generated to avoid generating code
+    // for a partially decoded instruction.
+    //
+    // (@checkme: not sure if there is any other state that needs to be restored here)
+    tcg_ctx->gen_opc_ptr = save_gen_opc_ptr;
+    tcg_ctx->gen_opparam_ptr = save_opparam_ptr;
+    s->cc_op_dirty = cc_op_dirty;
+
     gen_exception(s, EXCP06_ILLOP, pc_start - s->cs_base);
     return s->pc;
 }
