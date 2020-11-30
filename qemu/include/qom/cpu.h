@@ -137,6 +137,8 @@ typedef struct CPUClass {
     void (*cpu_exec_enter)(CPUState *cpu);
     void (*cpu_exec_exit)(CPUState *cpu);
     bool (*cpu_exec_interrupt)(CPUState *cpu, int interrupt_request);
+
+    void (*cpu_reset_exception_state)(CPUState *cpu);
 } CPUClass;
 
 #ifdef HOST_WORDS_BIGENDIAN
@@ -392,6 +394,12 @@ static inline hwaddr cpu_get_phys_page_debug(CPUState *cpu, vaddr addr)
  * @cpu: The CPU whose state is to be reset.
  */
 void cpu_reset(CPUState *cpu);
+
+/**
+ * cpu_reset_exception_state:
+ * @cpu: Reset the exception state of the CPU
+ */
+void cpu_reset_exception_state(CPUState *cpu);
 
 /**
  * cpu_class_by_name:

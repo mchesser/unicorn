@@ -2561,6 +2561,12 @@ static bool x86_cpu_has_work(CPUState *cs)
                                      CPU_INTERRUPT_MCE));
 }
 
+void x86_reset_exception_state(CPUState* s) {
+    X86CPU *cpu = X86_CPU(s->uc, s);
+    CPUX86State *env = &cpu->env;
+    env->old_exception = -1;
+}
+
 static void x86_cpu_common_class_init(struct uc_struct *uc, ObjectClass *oc, void *data)
 {
     //printf("... init X86 cpu common class\n");
@@ -2597,6 +2603,7 @@ static void x86_cpu_common_class_init(struct uc_struct *uc, ObjectClass *oc, voi
 #endif
     cc->cpu_exec_enter = x86_cpu_exec_enter;
     cc->cpu_exec_exit = x86_cpu_exec_exit;
+    cc->cpu_reset_exception_state = x86_reset_exception_state;
 }
 
 void x86_cpu_register_types(void *opaque)

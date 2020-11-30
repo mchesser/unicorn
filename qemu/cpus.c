@@ -72,6 +72,7 @@ int resume_all_vcpus(struct uc_struct *uc)
     }
 
     cpu->exit_request = 0;
+    cpu_reset_exception_state(cpu);
 
     //qemu_clock_enable(QEMU_CLOCK_VIRTUAL, true);
     cpu_resume(cpu);

@@ -148,6 +148,15 @@ void cpu_reset(CPUState *cpu)
     }
 }
 
+void cpu_reset_exception_state(CPUState *cpu)
+{
+    CPUClass *klass = CPU_GET_CLASS(cpu->uc, cpu);
+
+    if (klass->cpu_reset_exception_state != NULL) {
+        (*klass->cpu_reset_exception_state)(cpu);
+    }
+}
+
 static void cpu_common_reset(CPUState *cpu)
 {
     CPUClass *cc = CPU_GET_CLASS(cpu->uc, cpu);
