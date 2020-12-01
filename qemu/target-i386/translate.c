@@ -5037,6 +5037,10 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         check_exit_request(tcg_ctx);
     }
 
+    uint16_t *after_hook_gen_opc_ptr = tcg_ctx->gen_opc_ptr;
+    TCGArg *after_hook_opparam_ptr = tcg_ctx->gen_opparam_ptr;
+    bool after_hook_cc_op_dirty = s->cc_op_dirty;
+
     prefixes = 0;
     s->override = -1;
     rex_w = -1;
@@ -8520,9 +8524,9 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
     // for a partially decoded instruction.
     //
     // (@checkme: not sure if there is any other state that needs to be restored here)
-    tcg_ctx->gen_opc_ptr = save_gen_opc_ptr;
-    tcg_ctx->gen_opparam_ptr = save_opparam_ptr;
-    s->cc_op_dirty = cc_op_dirty;
+    tcg_ctx->gen_opc_ptr = after_hook_gen_opc_ptr;
+    tcg_ctx->gen_opparam_ptr = after_hook_opparam_ptr;
+    s->cc_op_dirty = after_hook_cc_op_dirty;
 
     gen_exception(s, EXCP06_ILLOP, pc_start - s->cs_base);
     return s->pc;
